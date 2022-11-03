@@ -21,7 +21,7 @@ void setup() {
   frameRate(72);
   //minim = new Minim(this);
   //song = minim.loadFile("song.mp3");
-  //song.loop();DanielKoopm
+  //song.loop();
 }
 
 void draw() {
