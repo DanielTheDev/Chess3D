@@ -49,6 +49,10 @@ public enum PieceType {
   private final char c;
   private final String name;
 
+  /*
+  Callibrate every model since their center of volume is not the same for all models
+  This methods sets the center point to their model's center point
+  */
   public abstract void setTranslation(PShape shape);
 
   PieceType(char c, String name) {

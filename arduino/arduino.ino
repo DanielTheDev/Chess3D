@@ -23,13 +23,14 @@ void setup() {
 }
 
 void loop() {
+  //if the arduino receives a ping from the software, then the timer is reset.
   if(Serial.available() > 0) {
     int in = Serial.read();
     if(in == 50) {
       lastTime = millis();
     }
   }
-
+  //if the timer is less then {timeout} seconds, then the arduino will transmit data of the busses, if else it will go to a standby state
   if((millis() - lastTime) < timeout) {
       int packet1 = createPacket(joystick1, analogRead(X1), analogRead(Y1), digitalRead(BTN_1));
       int packet2 = createPacket(joystick2, analogRead(X2), analogRead(Y2), digitalRead(BTN_2));
@@ -38,9 +39,10 @@ void loop() {
   }
 }
 
+//encodes the joystick data to a 8-bit packet to be transmitted over the Serial bus
 int createPacket(int joystick, int x, int y, int button) {
-  button = button == 1 ? 0 : 1;
-  y = y < (500 - triggerMarge) ? 0x01 : (y > (500 + triggerMarge) ? 0x02 : 0x00);
-  x = x < (500 - triggerMarge) ? 0x01 : (x > (500 + triggerMarge) ? 0x02 : 0x00);
+  button = button == 1 ? 0 : 1; 
+  y = y < (500 - triggerMarge) ? 0x01 : (y > (500 + triggerMarge) ? 0x02 : 0x00); //maps the y-direction from [0, 1024] to [0, 2]
+  x = x < (500 - triggerMarge) ? 0x01 : (x > (500 + triggerMarge) ? 0x02 : 0x00); //maps the x-direction from [0, 1024] to [0, 2]
   return (joystick << 6) | (x << 4) | (y << 2) | button;
 }

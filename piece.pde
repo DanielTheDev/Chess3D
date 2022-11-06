@@ -4,7 +4,7 @@ public class Piece {
   private final PieceType type;
   private final PieceColor pieceColor;
   private boolean moved = false;
-  private int animationIndex = 0;
+  private volatile float animationIndex = 0;
   private int x;
   private int y;
   
@@ -14,21 +14,25 @@ public class Piece {
     this.pieceColor = pieceColor;
     this.x = x;
     this.y = y;
-    this.shape = loadModel("models/"+pieceColor.name().toLowerCase()+"/"+type.getName()+"/"+type.getName()+".obj");
+    this.shape = loadShape("models/"+pieceColor.name().toLowerCase()+"/"+type.getName()+"/"+type.getName()+".obj");
     this.shape.rotateX(HALF_PI);
     this.type.setTranslation(shape);
     if(pieceColor == PieceColor.BLACK) shape.rotateY(PI);
     this.shape.scale(type == PieceType.KING ? 25 : 30);
   }
   
+  /*
+  Calculate a list of the x- and y-values for the tiles the piece can move to
+  All possibilities will be added and then trimmed based on the criteria filters
+  */
   public List<int[]> getPossiblePositions(Board board) {
     List<int[]> positions = new ArrayList<>();
     if(this.type == PieceType.PAWN) {
       int direction = this.pieceColor == PieceColor.BLACK ? -1 : 1;
       if(board.hasPiece(this.x-1, this.y+direction)) positions.add(new int[] {this.x-1, this.y+direction});
       if(board.hasPiece(this.x+1, this.y+direction)) positions.add(new int[] {this.x+1, this.y+direction});
-      positions.add(new int[] {x, y+direction});
-      if(!moved) positions.add(new int[] {x, y+2*direction});
+      if(!board.hasPiece(x, y+direction, this.getOppositeColor())) positions.add(new int[] {x, y+direction});
+      if(!moved && !board.hasPiece(x, y+2*direction, this.getOppositeColor())) positions.add(new int[] {x, y+2*direction});
     } else if(type == PieceType.KING) {
       int[][] relativePositions = new int[][] {{1,1},{1,0},{0,1},{0,-1},{-1,0},{-1,-1},{1,-1},{-1, 1}};
       for(int[] pos : relativePositions) positions.add(new int[] {this.x + pos[0], this.y + pos[1]});
@@ -52,6 +56,9 @@ public class Piece {
     return positions;
   }
   
+  /*
+  Calculate all the relative tile locations to move to if the piece can move in straight directions
+  */
   private void addStraightDirections(Board board, List<int[]> positions) {
     boolean top = false,right = false,bottom = false,left = false;
     for(int t = 1; t < 8; t++) {
@@ -73,7 +80,9 @@ public class Piece {
       }
     }
   }
-  
+  /*
+  Calculate all the relative tile locations to move to if the piece can move in diagonal directions
+  */
   private void addDiagonalDirections(Board board, List<int[]> positions) {
     boolean topleft = false,topright = false,bottomleft = false,bottomright = false;
     for(int t = 1; t < 8; t++) {
@@ -100,6 +109,9 @@ public class Piece {
     this.animationIndex = 0;
   }
   
+  /*
+  Calculate the next animation value if the piece is selected.
+  */
   public void nextAnimation() {
     this.animationIndex += PI / 60;
     this.animationIndex %= TWO_PI;
@@ -133,6 +145,10 @@ public class Piece {
 
   public PieceColor getColor() {
     return pieceColor;
+  }
+  
+  public PieceColor getOppositeColor() {
+    return pieceColor == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
   }
 
   public int getX() {
