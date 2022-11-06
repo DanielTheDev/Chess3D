@@ -17,10 +17,16 @@ void setup() {
   surface.setTitle("3D Chess - By DanielTheDev");
   noCursor();
   frameRate(72);
+<<<<<<< HEAD
   minim = new Minim(this);
   song = minim.loadFile("sounds/song.mp3"); //load chess background music
   move = minim.loadFile("sounds/move.mp3"); //load chess piece move sound
   song.loop(); //set the background music on loop mode
+=======
+  //minim = new Minim(this);
+  //song = minim.loadFile("song.mp3");
+  //song.loop();
+>>>>>>> 2813420e32c00b4ea9a848bab5bc6282f29fce6e
 }
 
 void draw() {
